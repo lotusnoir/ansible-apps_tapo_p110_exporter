@@ -1,0 +1,5 @@
+---
+- name: "Restart tapo_p110_exporter"
+  ansible.builtin.service:
+    name: "tapo_p110_exporter"
+    state: "restarted"

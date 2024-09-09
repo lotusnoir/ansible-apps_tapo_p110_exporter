@@ -1,0 +1,18 @@
+---
+# Binary install
+tapo_p110_exporter_version: "0.1.0"
+tapo_p110_exporter_tgz: "tapo_p110_exporter-{{ tapo_p110_exporter_version }}.linux-amd64.tar.gz"
+tapo_p110_exporter_tgz_url: "https://github.com/lotusnoir/P110-Exporter/releases/download/{{ tapo_p110_exporter_version }}/{{ tapo_p110_exporter_tgz }}"
+tapo_p110_exporter_temp_dir: "/tmp"
+tapo_p110_exporter_install_dir: "/usr/local/bin"
+tapo_p110_exporter_force_install: false
+
+# config
+tapo_p110_devices:
+  study: "192.168.1.102"
+  living_room: "192.168.1.183"
+
+# Systemd options
+tapo_p110_exporter_listen_port: "9120"
+tapo_p110_username: "xxxxxxxxxxxxx"
+tapo_p110_password: "xxxxxxxxxxxxx"

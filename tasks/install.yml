@@ -1,0 +1,67 @@
+---
+- name: "Check for tapo_p110_exporter binary"
+  ansible.builtin.stat:
+    path: '{{ tapo_p110_exporter_install_dir }}/p110_exporter'
+  changed_when: false
+  register: tapo_p110_exporter_install
+
+- name: "Install tasks"
+  when: not tapo_p110_exporter_install.stat.exists or tapo_p110_exporter_force_install|bool
+  block:
+    - name: "Install requierements"
+      ansible.builtin.package:
+        name: ["ca-certificates", "unzip", "tar"]
+        state: present
+
+    - name: "Download tapo_p110_exporter..."
+      ansible.builtin.get_url:
+        url: '{{ tapo_p110_exporter_tgz_url }}'
+        dest: '{{ tapo_p110_exporter_temp_dir }}/{{ tapo_p110_exporter_tgz }}'
+        timeout: '60'
+        mode: '0644'
+
+    - name: "Ensure install directory exists"
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: directory
+        mode: '0755'
+      with_items:
+        - '{{ tapo_p110_exporter_install_dir }}'
+        - '{{ tapo_p110_exporter_temp_dir }}/tapo_p110_exporter'
+
+    - name: "Unarchive tapo_p110_exporter..."
+      ansible.builtin.unarchive:
+        src: '{{ tapo_p110_exporter_temp_dir }}/{{ tapo_p110_exporter_tgz }}'
+        dest: '{{ tapo_p110_exporter_temp_dir }}/tapo_p110_exporter'
+        #extra_opts: [--strip-components=1]
+        remote_src: true
+        mode: '0644'
+
+    - name: "Copy tapo_p110_exporter binary..."
+      ansible.builtin.copy:
+        src: '{{ tapo_p110_exporter_temp_dir }}/tapo_p110_exporter/tapo_p110_exporter'
+        dest: '{{ tapo_p110_exporter_install_dir }}/tapo_p110_exporter'
+        remote_src: true
+        mode: '0755'
+
+- name: "Create systemd for tapo_p110_exporter"
+  ansible.builtin.template:
+    src: 'tapo_p110_exporter.service.j2'
+    dest: '/etc/systemd/system/tapo_p110_exporter.service'
+    mode: '0640'
+  notify: "Restart tapo_p110_exporter"
+
+- name: "Create config file"
+  ansible.builtin.template:
+    src: 'tapo_p110_config.yaml.j2'
+    dest: '/etc/tapo_p110_config.yaml'
+    mode: '0640'
+  notify: "Restart tapo_p110_exporter"
+
+
+- name: "Start tapo_p110_exporter.service"
+  ansible.builtin.service:
+    name: tapo_p110_exporter
+    state: started
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Prometheus tapo_p110 Exporter
+After=network-online.target
+StartLimitInterval=0
+
+[Service]
+Type=simple
+Restart=always
+ExecStart={{ tapo_p110_exporter_install_dir }}/tapo_p110_exporter \
+	  --tapo-email={{ tapo_p110_username }} \
+	  --tapo-password={{ tapo_p110_password }} \
+          --config-file=/etc/tapo_p110_config.yaml \ 
+          --prometheus-port={{ tapo_p110_exporter_listen_port }}
+ExecReload=/bin/kill -HUP $MAINPID
+SyslogIdentifier=tapo_p110_exporter
+RestartSec=1
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

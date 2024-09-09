@@ -1,0 +1,2 @@
+devices:
+  {{ tapo_p110_devices | to_nice_yaml(indent=2, sort_keys=False)| trim | indent(2) }}
