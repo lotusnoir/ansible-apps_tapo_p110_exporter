@@ -21,6 +21,7 @@
 
 ## Description
 
+Install and configure itapo exporter to get connecter plugs metrics on grafana / prometheus
 ## Requirements
 
 none
